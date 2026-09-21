@@ -15,12 +15,19 @@ import java.time.LocalDate;
 public class ReservationValidator {
 
     /**
-     * Validates the supplied data.
+     * Validates the data required to create a reservation.
      *
-     * @param vehicle supplied value used by this operation
-     * @param client supplied value used by this operation
-     * @param from supplied value used by this operation
-     * @param to supplied value used by this operation
+     * <p>The validation checks the selected vehicle, client,
+     * reservation dates, vehicle service status, and vehicle
+     * availability for the requested period.</p>
+     *
+     * @param vehicle vehicle selected for the reservation
+     * @param client client creating the reservation
+     * @param from reservation start date
+     * @param to reservation end date
+     * @throws IllegalArgumentException if the supplied data is invalid
+     *                                  or the vehicle is currently in service
+     * @throws SQLException if vehicle availability cannot be checked
      */
     public void validate(
             Vehicle vehicle,
