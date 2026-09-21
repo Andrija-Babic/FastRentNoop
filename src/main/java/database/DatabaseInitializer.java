@@ -1,5 +1,7 @@
 package database;
 
+import dao.client.ClientSchemaDAO;
+
 import java.sql.Connection;
 import java.sql.Statement;
 
@@ -12,7 +14,7 @@ public class DatabaseInitializer {
 
     /**
      * Initializes the data or component required by the application.
-    */
+     */
     public static void initialize() {
 
         try (Connection conn = DBConnection.connect();
@@ -32,5 +34,7 @@ public class DatabaseInitializer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        ClientSchemaDAO.initializePasswordColumns();
     }
 }

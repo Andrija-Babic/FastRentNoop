@@ -2,6 +2,7 @@ package service;
 
 import dao.client.ClientDAO;
 import model.entity.Client;
+import model.strategy.PricingType;
 import util.PasswordUtil;
 
 /**
@@ -33,17 +34,17 @@ public class EditClientService {
      * @param lastName supplied value used by this operation
      * @param username supplied value used by this operation
      * @param password supplied value used by this operation
-     * @param premium supplied value used by this operation
+     * @param pricingType pricing type assigned to the client
      *
      * @return the value produced by this operation
-    */
+     */
     public static Result updateClient(
             Client client,
             String firstName,
             String lastName,
             String username,
             String password,
-            boolean premium
+            PricingType pricingType
     ) {
         if (firstName.isEmpty()) {
             return Result.EMPTY_FIRST_NAME;
@@ -75,7 +76,7 @@ public class EditClientService {
 
         client.setFirstName(firstName);
         client.setLastName(lastName);
-        client.setPremium(premium);
+        client.setPricingType(pricingType);
 
         if (!ClientDAO.update(client)) {
             return Result.UPDATE_ERROR;

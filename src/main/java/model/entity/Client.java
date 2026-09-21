@@ -1,5 +1,7 @@
 package model.entity;
 
+import model.strategy.PricingType;
+
 /**
  * Represents a FastRent client and the client's account information.
  *
@@ -10,7 +12,7 @@ public class Client {
     private int id;
     private String firstName;
     private String lastName;
-    private boolean premium;
+    private PricingType pricingType;
 
     private String username;
     private String passwordHash;
@@ -22,7 +24,7 @@ public class Client {
      * @param firstName supplied value used by this operation
      * @param lastName supplied value used by this operation
      * @param premium supplied value used by this operation
-    */
+     */
     public Client(
             int id,
             String firstName,
@@ -32,7 +34,9 @@ public class Client {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.premium = premium;
+        this.pricingType = premium
+                ? PricingType.PREMIUM
+                : PricingType.REGULAR;
     }
 
     // =====================================================
@@ -43,7 +47,7 @@ public class Client {
      * Returns the id.
      *
      * @return the value produced by this operation
-    */
+     */
     public int getId() {
         return id;
     }
@@ -52,7 +56,7 @@ public class Client {
      * Returns the firstname.
      *
      * @return the value produced by this operation
-    */
+     */
     public String getFirstName() {
         return firstName;
     }
@@ -61,25 +65,34 @@ public class Client {
      * Returns the lastname.
      *
      * @return the value produced by this operation
-    */
+     */
     public String getLastName() {
         return lastName;
     }
 
     /**
-     * Returns whether premium.
+     * Returns whether the client has premium pricing.
      *
-     * @return the value produced by this operation
-    */
+     * @return true when the client's pricing type is PREMIUM
+     */
     public boolean isPremium() {
-        return premium;
+        return pricingType == PricingType.PREMIUM;
+    }
+
+    /**
+     * Returns the client's pricing type.
+     *
+     * @return the pricing type
+     */
+    public PricingType getPricingType() {
+        return pricingType;
     }
 
     /**
      * Returns the fullname.
      *
      * @return the value produced by this operation
-    */
+     */
     public String getFullName() {
         return firstName + " " + lastName;
     }
@@ -88,7 +101,7 @@ public class Client {
      * Returns the username.
      *
      * @return the value produced by this operation
-    */
+     */
     public String getUsername() {
         return username;
     }
@@ -97,7 +110,7 @@ public class Client {
      * Returns the passwordhash.
      *
      * @return the value produced by this operation
-    */
+     */
     public String getPasswordHash() {
         return passwordHash;
     }
@@ -110,7 +123,7 @@ public class Client {
      * Sets the id.
      *
      * @param id supplied value used by this operation
-    */
+     */
     public void setId(int id) {
         this.id = id;
     }
@@ -119,7 +132,7 @@ public class Client {
      * Sets the firstname.
      *
      * @param firstName supplied value used by this operation
-    */
+     */
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -128,25 +141,39 @@ public class Client {
      * Sets the lastname.
      *
      * @param lastName supplied value used by this operation
-    */
+     */
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
 
     /**
-     * Sets the premium.
+     * Sets the client's pricing type.
      *
-     * @param premium supplied value used by this operation
-    */
+     * @param pricingType pricing type assigned to the client
+     */
+    public void setPricingType(PricingType pricingType) {
+        this.pricingType = pricingType;
+    }
+
+    /**
+     * Sets the premium status.
+     *
+     * <p>This method is kept for compatibility with existing application
+     * code. The value is translated into the corresponding pricing type.</p>
+     *
+     * @param premium whether the client should have premium pricing
+     */
     public void setPremium(boolean premium) {
-        this.premium = premium;
+        this.pricingType = premium
+                ? PricingType.PREMIUM
+                : PricingType.REGULAR;
     }
 
     /**
      * Sets the username.
      *
      * @param username supplied value used by this operation
-    */
+     */
     public void setUsername(String username) {
         this.username = username;
     }
@@ -155,7 +182,7 @@ public class Client {
      * Sets the passwordhash.
      *
      * @param passwordHash supplied value used by this operation
-    */
+     */
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
     }

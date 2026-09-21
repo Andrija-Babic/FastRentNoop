@@ -1,6 +1,7 @@
 package view.admin;
 
 import model.entity.Client;
+import model.strategy.PricingType;
 import service.EditClientService;
 
 import javax.swing.*;
@@ -21,7 +22,7 @@ public class EditClientDialog extends JDialog {
     private JTextField lastNameField;
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private JCheckBox premiumCheckBox;
+    private JComboBox<PricingType> pricingTypeComboBox;
 
     /**
      * Creates a new EditClientDialog instance.
@@ -29,7 +30,7 @@ public class EditClientDialog extends JDialog {
      * @param parent supplied value used by this operation
      * @param client supplied value used by this operation
      * @param refreshAction supplied value used by this operation
-    */
+     */
     public EditClientDialog(
             JFrame parent,
             Client client,
@@ -82,10 +83,17 @@ public class EditClientDialog extends JDialog {
         panel.add(passwordField);
         addSpacing(panel);
 
-        premiumCheckBox = new JCheckBox("Premium korisnik");
-        premiumCheckBox.setSelected(client.isPremium());
-        premiumCheckBox.setBackground(Color.WHITE);
-        panel.add(premiumCheckBox);
+        panel.add(createLabel("Tip cjenika:"));
+
+        pricingTypeComboBox =
+                new JComboBox<>(PricingType.values());
+
+        pricingTypeComboBox.setSelectedItem(
+                client.getPricingType()
+        );
+
+        configureField(pricingTypeComboBox);
+        panel.add(pricingTypeComboBox);
 
         return panel;
     }
@@ -150,8 +158,8 @@ public class EditClientDialog extends JDialog {
         String password =
                 new String(passwordField.getPassword());
 
-        boolean premium =
-                premiumCheckBox.isSelected();
+        PricingType pricingType =
+                (PricingType) pricingTypeComboBox.getSelectedItem();
 
         EditClientService.Result result =
                 EditClientService.updateClient(
@@ -160,7 +168,7 @@ public class EditClientDialog extends JDialog {
                         lastName,
                         username,
                         password,
-                        premium
+                        pricingType
                 );
 
         if (result == EditClientService.Result.SUCCESS) {

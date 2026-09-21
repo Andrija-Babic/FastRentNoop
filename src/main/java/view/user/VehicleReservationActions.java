@@ -4,6 +4,7 @@ import controller.LoginController;
 import controller.ReservationController;
 import model.VehicleTableModel;
 import model.entity.Client;
+import model.entity.Reservation;
 import model.entity.Vehicle;
 
 import javax.swing.*;
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 /**
- * Provides user-interface actions for creating vehicle reservations.
+ * Provides Swing actions for creating vehicle reservations.
  *
  * <p>This class is part of the FastRent application architecture.</p>
  */
@@ -22,12 +23,12 @@ public final class VehicleReservationActions {
     }
 
     /**
-     * Creates or stores the data handled by this method.
+     * Creates a new vehicle reservation.
      *
-     * @param parent supplied value used by this operation
-     * @param table supplied value used by this operation
-     * @param model supplied value used by this operation
-    */
+     * @param parent parent component used for dialogs
+     * @param table vehicle table
+     * @param model vehicle table model
+     */
     public static void createReservation(
             VehiclesPanel parent,
             JTable table,
@@ -36,14 +37,12 @@ public final class VehicleReservationActions {
         int selectedRow = table.getSelectedRow();
 
         if (selectedRow == -1) {
-
             JOptionPane.showMessageDialog(
                     parent,
                     "Odaberite vozilo za rezervaciju.",
                     "Upozorenje",
                     JOptionPane.WARNING_MESSAGE
             );
-
             return;
         }
 
@@ -51,62 +50,65 @@ public final class VehicleReservationActions {
                 LoginController.getLoggedInClient();
 
         if (client == null) {
-
             JOptionPane.showMessageDialog(
                     parent,
                     "Niste prijavljeni kao korisnik.",
                     "Greška",
                     JOptionPane.ERROR_MESSAGE
             );
-
             return;
         }
 
-        /*
-         * JTable može imati sortiranje.
-         * Zato prvo pretvaramo prikazani red
-         * u red modela.
-         */
-        int modelRow = table.convertRowIndexToModel(selectedRow);
+        int modelRow =
+                table.convertRowIndexToModel(selectedRow);
 
-        /*
-         * Dohvaćamo TOČNO vozilo koje je
-         * korisnik odabrao.
-         */
-        Vehicle vehicle = model.getVehicleAt(modelRow);
+        Vehicle vehicle =
+                model.getVehicleAt(modelRow);
 
-        JTextField fromField = new JTextField(LocalDate.now().toString());
+        JTextField fromField =
+                new JTextField(
+                        LocalDate.now().toString()
+                );
 
-        JTextField toField = new JTextField();
+        JTextField toField =
+                new JTextField();
 
-        JPanel panel = new JPanel(new GridLayout(
+        JPanel panel =
+                new JPanel(
+                        new GridLayout(
                                 0,
                                 2,
                                 10,
-                                10));
+                                10
+                        )
+                );
 
         panel.add(new JLabel("Vozilo:"));
 
-        panel.add(new JLabel(
+        panel.add(
+                new JLabel(
                         vehicle.getFullName()
                 )
         );
 
-        panel.add(new JLabel(
+        panel.add(
+                new JLabel(
                         "Od (YYYY-MM-DD):"
                 )
         );
 
         panel.add(fromField);
 
-        panel.add(new JLabel(
+        panel.add(
+                new JLabel(
                         "Do (YYYY-MM-DD):"
                 )
         );
 
         panel.add(toField);
 
-        int result = JOptionPane.showConfirmDialog(
+        int result =
+                JOptionPane.showConfirmDialog(
                         parent,
                         panel,
                         "Kreiraj rezervaciju",
@@ -122,9 +124,15 @@ public final class VehicleReservationActions {
         LocalDate to;
 
         try {
+            from =
+                    LocalDate.parse(
+                            fromField.getText().trim()
+                    );
 
-            from = LocalDate.parse(fromField.getText().trim());
-            to = LocalDate.parse(toField.getText().trim());
+            to =
+                    LocalDate.parse(
+                            toField.getText().trim()
+                    );
 
         } catch (DateTimeParseException ex) {
 
@@ -140,12 +148,13 @@ public final class VehicleReservationActions {
 
         try {
 
-            ReservationController.createReservation(
-                    vehicle,
-                    client,
-                    from,
-                    to
-            );
+            Reservation reservation =
+                    ReservationController.createReservation(
+                            vehicle,
+                            client,
+                            from,
+                            to
+                    );
 
             JOptionPane.showMessageDialog(
                     parent,
@@ -155,7 +164,12 @@ public final class VehicleReservationActions {
                             + "\nOd: "
                             + from
                             + "\nDo: "
-                            + to,
+                            + to
+                            + "\nCijena: "
+                            + String.format(
+                            "%.2f €",
+                            reservation.getTotalPrice()
+                    ),
                     "Uspjeh",
                     JOptionPane.INFORMATION_MESSAGE
             );

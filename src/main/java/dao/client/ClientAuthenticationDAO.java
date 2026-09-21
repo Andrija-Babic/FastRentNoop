@@ -6,7 +6,7 @@ import model.entity.Client;
 import java.sql.*;
 
 /**
- * Provides data-access operations for clientauthentication data.
+ * Provides data-access operations for client authentication data.
  *
  * <p>This class is part of the FastRent application architecture.</p>
  */
@@ -20,7 +20,7 @@ public class ClientAuthenticationDAO {
      * @param passwordHash supplied value used by this operation
      *
      * @return the value produced by this operation
-    */
+     */
     public static boolean insertWithCredentials(
             Client client,
             String username,
@@ -28,8 +28,9 @@ public class ClientAuthenticationDAO {
 
         String sql =
                 "INSERT INTO clients " +
-                        "(first_name, last_name, premium, username, password_hash) " +
-                        "VALUES (?, ?, ?, ?, ?)";
+                        "(first_name, last_name, premium, pricing_type, " +
+                        "username, password_hash) " +
+                        "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.connect();
              PreparedStatement ps = conn.prepareStatement(
@@ -38,8 +39,9 @@ public class ClientAuthenticationDAO {
             ps.setString(1, client.getFirstName());
             ps.setString(2, client.getLastName());
             ps.setInt(3, client.isPremium() ? 1 : 0);
-            ps.setString(4, username);
-            ps.setString(5, passwordHash);
+            ps.setString(4, client.getPricingType().name());
+            ps.setString(5, username);
+            ps.setString(6, passwordHash);
 
             ps.executeUpdate();
 
@@ -66,7 +68,7 @@ public class ClientAuthenticationDAO {
      * @param username supplied value used by this operation
      *
      * @return the value produced by this operation
-    */
+     */
     public static Client findByUsername(String username) {
         String sql =
                 "SELECT * FROM clients WHERE username = ?";
@@ -95,7 +97,7 @@ public class ClientAuthenticationDAO {
      * @param username supplied value used by this operation
      *
      * @return the value produced by this operation
-    */
+     */
     public static String getPasswordHash(String username) {
         String sql =
                 "SELECT password_hash FROM clients WHERE username = ?";
@@ -126,7 +128,7 @@ public class ClientAuthenticationDAO {
      * @param passwordHash supplied value used by this operation
      *
      * @return the value produced by this operation
-    */
+     */
     public static boolean setCredentials(
             int clientId,
             String username,
@@ -158,7 +160,7 @@ public class ClientAuthenticationDAO {
      * @param username supplied value used by this operation
      *
      * @return the value produced by this operation
-    */
+     */
     public static boolean setUsername(
             int clientId,
             String username) {

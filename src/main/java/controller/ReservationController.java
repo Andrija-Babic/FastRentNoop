@@ -5,9 +5,6 @@ import model.entity.Client;
 import model.entity.Reservation;
 import model.entity.Vehicle;
 
-import java.sql.SQLException;
-import java.time.LocalDate;
-
 /**
  * Coordinates application operations related to reservation.
  *
@@ -15,64 +12,90 @@ import java.time.LocalDate;
  */
 public class ReservationController {
 
-    private static final ReservationValidator validator = new ReservationValidator();
+    private static final ReservationValidator validator =
+            new ReservationValidator();
+
     private static final ReservationPricingService pricingService =
             new ReservationPricingService();
 
     /**
-     * Creates or stores the data handled by this method.
+     * Creates a new reservation and returns the created reservation.
      *
-     * @param vehicle supplied value used by this operation
-     * @param client supplied value used by this operation
-     * @param from supplied value used by this operation
-     * @param to supplied value used by this operation
-    */
-    public static void createReservation(
+     * @param vehicle vehicle used for the reservation
+     * @param client client making the reservation
+     * @param from start date of the reservation
+     * @param to end date of the reservation
+     *
+     * @return created reservation
+     *
+     * @throws IllegalArgumentException if the reservation data is invalid
+     * @throws java.sql.SQLException if the reservation cannot be stored
+     */
+    public static Reservation createReservation(
             Vehicle vehicle,
             Client client,
-            LocalDate from,
-            LocalDate to) throws SQLException {
+            java.time.LocalDate from,
+            java.time.LocalDate to) throws java.sql.SQLException {
 
-        validator.validate(vehicle, client, from, to);
-
-        double total = pricingService.calculatePrice(
+        validator.validate(
                 vehicle,
                 client,
                 from,
                 to
         );
 
-        Reservation reservation = new Reservation(
-                0,
-                vehicle,
-                client,
-                from,
-                to,
-                total,
-                "Potvrđeno"
-        );
+        double total =
+                pricingService.calculatePrice(
+                        vehicle,
+                        client,
+                        from,
+                        to
+                );
+
+        Reservation reservation =
+                new Reservation(
+                        0,
+                        vehicle,
+                        client,
+                        from,
+                        to,
+                        total,
+                        "Potvrđeno"
+                );
 
         ReservationDAO.insert(reservation);
+
+        return reservation;
     }
 
     /**
-     * Updates the reservationstatus data.
+     * Updates the status of an existing reservation.
      *
-     * @param reservation supplied value used by this operation
-     * @param newStatus supplied value used by this operation
-    */
+     * @param reservation reservation whose status is being updated
+     * @param newStatus new reservation status
+     *
+     * @throws java.sql.SQLException if the status cannot be stored
+     * @throws IllegalArgumentException if the reservation or status is invalid
+     */
     public static void updateReservationStatus(
             Reservation reservation,
-            String newStatus) throws SQLException {
+            String newStatus) throws java.sql.SQLException {
 
         if (reservation == null) {
-            throw new IllegalArgumentException("Rezervacija nije odabrana.");
+            throw new IllegalArgumentException(
+                    "Rezervacija nije odabrana."
+            );
         }
 
         if (newStatus == null || newStatus.isBlank()) {
-            throw new IllegalArgumentException("Status nije odabran.");
+            throw new IllegalArgumentException(
+                    "Status nije odabran."
+            );
         }
 
-        ReservationDAO.updateStatus(reservation.getId(), newStatus);
+        ReservationDAO.updateStatus(
+                reservation.getId(),
+                newStatus
+        );
     }
 }

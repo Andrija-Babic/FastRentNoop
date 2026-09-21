@@ -2,6 +2,7 @@ package view.admin;
 
 import dao.client.ClientDAO;
 import model.entity.Client;
+import model.strategy.PricingType;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -25,7 +26,7 @@ public class ClientPanelActions {
      * @param table supplied value used by this operation
      * @param model supplied value used by this operation
      * @param refreshAction supplied value used by this operation
-    */
+     */
     public static void editSelectedClient(
             Component parent,
             JTable table,
@@ -87,7 +88,7 @@ public class ClientPanelActions {
      * @param table supplied value used by this operation
      * @param model supplied value used by this operation
      * @param refreshAction supplied value used by this operation
-    */
+     */
     public static void deleteSelectedClient(
             Component parent,
             JTable table,
@@ -161,7 +162,7 @@ public class ClientPanelActions {
      * Refreshes the displayed or cached data.
      *
      * @param model supplied value used by this operation
-    */
+     */
     public static void refreshTable(
             DefaultTableModel model
     ) {
@@ -170,14 +171,23 @@ public class ClientPanelActions {
         List<Client> clients = ClientDAO.findAll();
 
         for (Client client : clients) {
+
+            String pricingType;
+
+            if (client.getPricingType() == PricingType.PREMIUM) {
+                pricingType = "Premium";
+            } else if (client.getPricingType() == PricingType.STUDENT) {
+                pricingType = "Student";
+            } else {
+                pricingType = "Regular";
+            }
+
             model.addRow(
                     new Object[]{
                             client.getId(),
                             client.getFirstName(),
                             client.getLastName(),
-                            client.isPremium()
-                                    ? "Premium"
-                                    : "Regular"
+                            pricingType
                     }
             );
         }

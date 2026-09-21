@@ -1,6 +1,7 @@
 package dao.client;
 
 import model.entity.Client;
+import model.strategy.PricingType;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,7 +19,7 @@ public class ClientMapper {
      * @param rs supplied value used by this operation
      *
      * @return the value produced by this operation
-    */
+     */
     public static Client fromResultSet(
             ResultSet rs) throws SQLException {
 
@@ -28,6 +29,14 @@ public class ClientMapper {
                 rs.getString("last_name"),
                 rs.getInt("premium") == 1
         );
+
+        String pricingType = rs.getString("pricing_type");
+
+        if (pricingType != null && !pricingType.isBlank()) {
+            client.setPricingType(
+                    PricingType.valueOf(pricingType)
+            );
+        }
 
         client.setUsername(rs.getString("username"));
         client.setPasswordHash(rs.getString("password_hash"));

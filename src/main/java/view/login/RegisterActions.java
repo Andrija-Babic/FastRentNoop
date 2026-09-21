@@ -1,8 +1,6 @@
 package view.login;
 
-import dao.client.ClientDAO;
-import model.entity.Client;
-import util.PasswordUtil;
+import controller.RegisterController;
 
 import javax.swing.*;
 
@@ -21,132 +19,97 @@ public final class RegisterActions {
      *
      * @param parent supplied value used by this operation
      * @param form supplied value used by this operation
-    */
+     */
     public static void register(
             RegisterFrame parent,
             RegisterFormPanel form
     ) {
-        String firstName =
-                form.getFirstName();
-
-        String lastName =
-                form.getLastName();
-
-        String username =
-                form.getUsername();
-
-        String password =
-                form.getPassword();
-
-        String confirmPassword =
-                form.getConfirmPassword();
-
-        if (firstName.isBlank()
-                || lastName.isBlank()
-                || username.isBlank()
-                || password.isBlank()
-                || confirmPassword.isBlank()) {
-
-            JOptionPane.showMessageDialog(
-                    parent,
-                    "Molimo ispunite sva polja.",
-                    "Greška",
-                    JOptionPane.WARNING_MESSAGE
-            );
-
-            return;
-        }
-
-        if (username.equalsIgnoreCase("admin")) {
-
-            JOptionPane.showMessageDialog(
-                    parent,
-                    "Korisničko ime 'admin' nije dostupno.",
-                    "Greška",
-                    JOptionPane.WARNING_MESSAGE
-            );
-
-            return;
-        }
-
-        if (password.length() < 6) {
-
-            JOptionPane.showMessageDialog(
-                    parent,
-                    "Lozinka mora imati najmanje 6 znakova.",
-                    "Greška",
-                    JOptionPane.WARNING_MESSAGE
-            );
-
-            return;
-        }
-
-        if (!password.equals(confirmPassword)) {
-
-            JOptionPane.showMessageDialog(
-                    parent,
-                    "Lozinke se ne podudaraju.",
-                    "Greška",
-                    JOptionPane.WARNING_MESSAGE
-            );
-
-            return;
-        }
-
-        if (ClientDAO.findByUsername(username)
-                != null) {
-
-            JOptionPane.showMessageDialog(
-                    parent,
-                    "Korisničko ime je već zauzeto.",
-                    "Greška",
-                    JOptionPane.WARNING_MESSAGE
-            );
-
-            return;
-        }
-
-        boolean premium = false;
-
-        Client client =
-                new Client(
-                        0,
-                        firstName,
-                        lastName,
-                        premium
+        RegisterController.Result result =
+                RegisterController.register(
+                        form.getFirstName(),
+                        form.getLastName(),
+                        form.getUsername(),
+                        form.getPassword(),
+                        form.getConfirmPassword()
                 );
 
-        String passwordHash =
-                PasswordUtil.hashPassword(
-                        password
+        switch (result) {
+
+            case EMPTY_FIRST_NAME:
+            case EMPTY_LAST_NAME:
+            case EMPTY_USERNAME:
+            case EMPTY_PASSWORD:
+            case EMPTY_CONFIRM_PASSWORD:
+
+                JOptionPane.showMessageDialog(
+                        parent,
+                        "Molimo ispunite sva polja.",
+                        "Greška",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+
+            case ADMIN_USERNAME:
+
+                JOptionPane.showMessageDialog(
+                        parent,
+                        "Korisničko ime 'admin' nije dostupno.",
+                        "Greška",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+
+            case PASSWORD_TOO_SHORT:
+
+                JOptionPane.showMessageDialog(
+                        parent,
+                        "Lozinka mora imati najmanje 6 znakova.",
+                        "Greška",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+
+            case PASSWORD_MISMATCH:
+
+                JOptionPane.showMessageDialog(
+                        parent,
+                        "Lozinke se ne podudaraju.",
+                        "Greška",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+
+            case USERNAME_TAKEN:
+
+                JOptionPane.showMessageDialog(
+                        parent,
+                        "Korisničko ime je već zauzeto.",
+                        "Greška",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                return;
+
+            case REGISTRATION_ERROR:
+
+                JOptionPane.showMessageDialog(
+                        parent,
+                        "Greška prilikom registracije korisnika.",
+                        "Greška",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+
+            case SUCCESS:
+
+                JOptionPane.showMessageDialog(
+                        parent,
+                        "Registracija je uspješna!",
+                        "Uspjeh",
+                        JOptionPane.INFORMATION_MESSAGE
                 );
 
-        boolean success =
-                ClientDAO.insertWithCredentials(
-                        client,
-                        username,
-                        passwordHash
-                );
-
-        if (!success) {
-
-            JOptionPane.showMessageDialog(
-                    parent,
-                    "Greška prilikom registracije korisnika.",
-                    "Greška",
-                    JOptionPane.ERROR_MESSAGE
-            );
-
-            return;
+                parent.dispose();
+                return;
         }
-
-        JOptionPane.showMessageDialog(
-                parent,
-                "Registracija je uspješna!",
-                "Uspjeh",
-                JOptionPane.INFORMATION_MESSAGE
-        );
-
-        parent.dispose();
     }
 }
