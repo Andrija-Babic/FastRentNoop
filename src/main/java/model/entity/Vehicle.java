@@ -117,6 +117,7 @@ public class Vehicle implements Subject {
     */
     public void setBrand(String brand) {
         this.brand = brand;
+        notifyObservers();
     }
 
     /**
@@ -126,6 +127,7 @@ public class Vehicle implements Subject {
     */
     public void setModel(String model) {
         this.model = model;
+        notifyObservers();
     }
 
     /**
@@ -135,6 +137,7 @@ public class Vehicle implements Subject {
     */
     public void setYear(int year) {
         this.year = year;
+        notifyObservers();
     }
 
     /**
@@ -144,6 +147,7 @@ public class Vehicle implements Subject {
     */
     public void setPricePerDay(double pricePerDay) {
         this.pricePerDay = pricePerDay;
+        notifyObservers();
     }
 
     /**

@@ -31,31 +31,6 @@ public class VehicleTableModel extends AbstractTableModel {
 
     /**
      * Creates a new VehicleTableModel instance.
-    */
-    public VehicleTableModel() {
-        this(false, null);
-    }
-
-    /**
-     * Creates a new VehicleTableModel instance.
-     *
-     * @param onlyAvailable supplied value used by this operation
-    */
-    public VehicleTableModel(boolean onlyAvailable) {
-        this(onlyAvailable, null);
-    }
-
-    /**
-     * Creates a new VehicleTableModel instance.
-     *
-     * @param observer supplied value used by this operation
-    */
-    public VehicleTableModel(Observer observer) {
-        this(false, observer);
-    }
-
-    /**
-     * Creates a new VehicleTableModel instance.
      *
      * @param onlyAvailable supplied value used by this operation
      * @param observer supplied value used by this operation

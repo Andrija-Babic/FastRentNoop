@@ -81,16 +81,6 @@ public class ReservationTableModel
     // USER
     // =====================================================
 
-    /**
-     * Creates a new ReservationTableModel instance.
-     *
-     * @param loggedUser supplied value used by this operation
-    */
-    public ReservationTableModel(
-            String loggedUser) {
-
-        this(loggedUser, null);
-    }
 
     /**
      * Creates a new ReservationTableModel instance.
