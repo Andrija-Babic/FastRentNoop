@@ -1,0 +1,18 @@
+unnamed package
+controller
+dao
+dao.client
+dao.reservation
+dao.vehicle
+database
+model
+model.entity
+model.observer
+model.strategy
+service
+util
+view.admin
+view.admin.calendar
+view.login
+view.user
+view.user.calendar
