@@ -35,6 +35,8 @@ public class ReservationTableModel
 
     private final Runnable updateAction;
 
+    private final String statusFilter;
+
     private List<Reservation> reservations =
             new ArrayList<>();
 
@@ -54,11 +56,12 @@ public class ReservationTableModel
 
     /**
      * Creates a new ReservationTableModel instance.
-    */
+     */
     public ReservationTableModel() {
 
         this.clientId = null;
         this.updateAction = null;
+        this.statusFilter = null;
 
         refresh();
     }
@@ -67,12 +70,30 @@ public class ReservationTableModel
      * Creates a new ReservationTableModel instance.
      *
      * @param updateAction supplied value used by this operation
-    */
+     */
     public ReservationTableModel(
             Runnable updateAction) {
 
         this.clientId = null;
         this.updateAction = updateAction;
+        this.statusFilter = null;
+
+        refresh();
+    }
+
+    /**
+     * Creates a new ReservationTableModel instance with a status filter.
+     *
+     * @param updateAction supplied value used by this operation
+     * @param statusFilter reservation status that should be displayed
+     */
+    public ReservationTableModel(
+            Runnable updateAction,
+            String statusFilter) {
+
+        this.clientId = null;
+        this.updateAction = updateAction;
+        this.statusFilter = statusFilter;
 
         refresh();
     }
@@ -81,13 +102,12 @@ public class ReservationTableModel
     // USER
     // =====================================================
 
-
     /**
      * Creates a new ReservationTableModel instance.
      *
      * @param loggedUser supplied value used by this operation
      * @param updateAction supplied value used by this operation
-    */
+     */
     public ReservationTableModel(
             String loggedUser,
             Runnable updateAction) {
@@ -104,6 +124,7 @@ public class ReservationTableModel
 
         this.clientId = id;
         this.updateAction = updateAction;
+        this.statusFilter = null;
 
         refresh();
     }
@@ -114,7 +135,7 @@ public class ReservationTableModel
 
     /**
      * Refreshes the displayed or cached data.
-    */
+     */
     public void refresh() {
 
         /*
@@ -128,17 +149,36 @@ public class ReservationTableModel
             ReservationDAO
                     .updateExpiredReservations();
 
+            List<Reservation> allReservations;
+
             if (clientId == null) {
 
-                reservations =
+                allReservations =
                         ReservationDAO.findAll();
 
             } else {
 
-                reservations =
+                allReservations =
                         ReservationDAO.findByClient(
                                 clientId
                         );
+            }
+
+            if (statusFilter == null) {
+
+                reservations =
+                        allReservations;
+
+            } else {
+
+                reservations =
+                        allReservations.stream()
+                                .filter(reservation ->
+                                        statusFilter.equals(
+                                                reservation.getStatus()
+                                        )
+                                )
+                                .toList();
             }
 
             registerObservers();
@@ -170,13 +210,17 @@ public class ReservationTableModel
 
         for (Reservation reservation : reservations) {
 
-            ReservationStatusObserver observer = new ReservationStatusObserver(
+            ReservationStatusObserver observer =
+                    new ReservationStatusObserver(
                             updateAction
                     );
 
             reservation.addObserver(observer);
 
-            observers.put(reservation, observer);
+            observers.put(
+                    reservation,
+                    observer
+            );
         }
     }
 
@@ -186,11 +230,14 @@ public class ReservationTableModel
 
     private void removeObservers() {
 
-        for (Map.Entry<Reservation, ReservationStatusObserver> entry : observers.entrySet()) {
+        for (Map.Entry<Reservation, ReservationStatusObserver> entry :
+                observers.entrySet()) {
 
-            Reservation reservation = entry.getKey();
+            Reservation reservation =
+                    entry.getKey();
 
-            ReservationStatusObserver observer = entry.getValue();
+            ReservationStatusObserver observer =
+                    entry.getValue();
 
             reservation.removeObserver(observer);
         }
@@ -221,9 +268,12 @@ public class ReservationTableModel
     }
 
     @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    public Object getValueAt(
+            int rowIndex,
+            int columnIndex) {
 
-        Reservation reservation = reservations.get(rowIndex);
+        Reservation reservation =
+                reservations.get(rowIndex);
 
         switch (columnIndex) {
 
@@ -260,12 +310,11 @@ public class ReservationTableModel
     // =====================================================
 
     /**
-     * Returns the reservationat.
+     * Returns the reservation at the specified row.
      *
      * @param rowIndex supplied value used by this operation
-     *
-     * @return the value produced by this operation
-    */
+     * @return reservation at the specified row
+     */
     public Reservation getReservationAt(
             int rowIndex) {
 

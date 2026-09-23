@@ -7,14 +7,19 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 /**
- * Provides the Swing panel used for maincontent operations.
+ * Provides the Swing panel used for displaying administrator reservations.
  *
- * <p>This class is part of the FastRent application architecture.</p>
+ * <p>The panel displays executed and unexecuted reservations
+ * in separate tables.</p>
  */
 public class MainContentPanel extends JPanel {
 
-    private JTable table;
-    private ReservationTableModel model;
+    private JTable executedTable;
+    private JTable unexecutedTable;
+
+    private ReservationTableModel executedModel;
+    private ReservationTableModel unexecutedModel;
+
     private final Runnable calendarRefreshAction;
 
     /**
@@ -67,7 +72,7 @@ public class MainContentPanel extends JPanel {
 
         JLabel title =
                 new JLabel(
-                        "Sve rezervacije"
+                        "Rezervacije"
                 );
 
         title.setFont(
@@ -87,19 +92,129 @@ public class MainContentPanel extends JPanel {
     // TABLE SECTION
     // =====================================================
 
-    private JScrollPane createTableSection() {
+    private JPanel createTableSection() {
 
-        /*
-         * Admin sees all reservations.
-         *
-         * refreshTable() is passed as the Observer action.
-         */
-        model =
-                new ReservationTableModel(
-                        this::refreshTable
+        JPanel panel =
+                new JPanel(
+                        new GridLayout(
+                                2,
+                                1,
+                                0,
+                                15
+                        )
                 );
 
-        table =
+        panel.setBackground(Color.WHITE);
+
+        // -------------------------------------------------
+        // EXECUTED RESERVATIONS
+        // -------------------------------------------------
+
+        executedModel =
+                new ReservationTableModel(
+                        this::refreshTable,
+                        "Izvršeno"
+                );
+
+        executedTable =
+                createTable(
+                        executedModel
+                );
+
+        JPanel executedPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        executedPanel.setBackground(Color.WHITE);
+
+        JLabel executedTitle =
+                new JLabel(
+                        "Izvršene rezervacije"
+                );
+
+        executedTitle.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        16
+                )
+        );
+
+        executedPanel.add(
+                executedTitle,
+                BorderLayout.NORTH
+        );
+
+        executedPanel.add(
+                new JScrollPane(
+                        executedTable
+                ),
+                BorderLayout.CENTER
+        );
+
+        panel.add(executedPanel);
+
+        // -------------------------------------------------
+        // UNEXECUTED RESERVATIONS
+        // -------------------------------------------------
+
+        unexecutedModel =
+                new ReservationTableModel(
+                        this::refreshTable,
+                        "Potvrđeno"
+                );
+
+        unexecutedTable =
+                createTable(
+                        unexecutedModel
+                );
+
+        JPanel unexecutedPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        unexecutedPanel.setBackground(Color.WHITE);
+
+        JLabel unexecutedTitle =
+                new JLabel(
+                        "Neizvršene rezervacije"
+                );
+
+        unexecutedTitle.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        16
+                )
+        );
+
+        unexecutedPanel.add(
+                unexecutedTitle,
+                BorderLayout.NORTH
+        );
+
+        unexecutedPanel.add(
+                new JScrollPane(
+                        unexecutedTable
+                ),
+                BorderLayout.CENTER
+        );
+
+        panel.add(unexecutedPanel);
+
+        return panel;
+    }
+
+    // =====================================================
+    // CREATE TABLE
+    // =====================================================
+
+    private JTable createTable(
+            ReservationTableModel model) {
+
+        JTable table =
                 new JTable(model);
 
         table.setRowHeight(25);
@@ -108,7 +223,7 @@ public class MainContentPanel extends JPanel {
                 ListSelectionModel.SINGLE_SELECTION
         );
 
-        return new JScrollPane(table);
+        return table;
     }
 
     // =====================================================
@@ -117,10 +232,27 @@ public class MainContentPanel extends JPanel {
 
     private void openEditDialog() {
 
-        int selectedRow =
-                table.getSelectedRow();
+        JTable selectedTable = null;
+        ReservationTableModel selectedModel = null;
 
-        if (selectedRow == -1) {
+        if (executedTable.getSelectedRow() != -1) {
+
+            selectedTable =
+                    executedTable;
+
+            selectedModel =
+                    executedModel;
+
+        } else if (unexecutedTable.getSelectedRow() != -1) {
+
+            selectedTable =
+                    unexecutedTable;
+
+            selectedModel =
+                    unexecutedModel;
+        }
+
+        if (selectedTable == null) {
 
             JOptionPane.showMessageDialog(
                     this,
@@ -132,13 +264,16 @@ public class MainContentPanel extends JPanel {
             return;
         }
 
+        int selectedRow =
+                selectedTable.getSelectedRow();
+
         int modelRow =
-                table.convertRowIndexToModel(
+                selectedTable.convertRowIndexToModel(
                         selectedRow
                 );
 
         var reservation =
-                model.getReservationAt(
+                selectedModel.getReservationAt(
                         modelRow
                 );
 
@@ -162,16 +297,22 @@ public class MainContentPanel extends JPanel {
     // =====================================================
 
     /**
-     * Refreshes the displayed or cached data.
+     * Refreshes both reservation tables.
      */
     public void refreshTable() {
 
-        if (model != null) {
+        SwingUtilities.invokeLater(() -> {
 
-            SwingUtilities.invokeLater(
-                    model::refresh
-            );
-        }
+            if (executedModel != null) {
+
+                executedModel.refresh();
+            }
+
+            if (unexecutedModel != null) {
+
+                unexecutedModel.refresh();
+            }
+        });
     }
 
     // =====================================================
@@ -179,9 +320,10 @@ public class MainContentPanel extends JPanel {
     // =====================================================
 
     /**
-     * Performs the editselectedreservation operation.
+     * Performs the edit selected reservation operation.
      */
     public void editSelectedReservation() {
+
         openEditDialog();
     }
 }
